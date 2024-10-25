@@ -11,15 +11,29 @@ class CameraController {
             isDragging: false,
             isLongPress: false,
             blackHoleForce: 0,
-            mouseButtonPressed: false
+            mouseButtonPressed: false,
+            // 速度計算用の追加プロパティ
+            lastPosition: new THREE.Vector3(),
+            lastRotationX: 0,
+            lastRotationY: 0,
+            velocity: new THREE.Vector3(),
+            rotationVelocity: 0,
+            velocityHistory: new Array(5).fill(0), // 過去5フレームの速度を保持
+            smoothVelocity: 0 // 平滑化された速度
         };
-        
+
         this.isAutoCamera = true;
         this.cameraTime = 0;
         this.autoBaseRotationX = 0;  // 自動カメラの基準となるX回転
         this.autoBaseRotationY = 0;  // 自動カメラの基準となるY回転
         this.autoStartTime = 0;      // 自動カメラ開始時刻
         this.longPressTimeout = null;
+
+        // 初期位置を保存
+        this.state.lastPosition.copy(camera.position);
+        this.state.lastRotationX = this.state.rotationX;
+        this.state.lastRotationY = this.state.rotationY;
+
         this.setupEventListeners();
     }
 
@@ -191,11 +205,13 @@ class CameraController {
     }
 
     updateManualCamera(radius) {
-        this.camera.position.set(
+        const newPosition = new THREE.Vector3(
             Math.sin(this.state.rotationX) * radius * Math.cos(this.state.rotationY),
             Math.sin(this.state.rotationY) * radius,
             Math.cos(this.state.rotationX) * radius * Math.cos(this.state.rotationY)
         );
+        this.updateVelocity(newPosition, radius);
+        this.camera.position.copy(newPosition);
     }
 
     updateAutoCamera(radius) {
@@ -207,12 +223,51 @@ class CameraController {
         // 基準の回転値に自動回転の増分を加える
         this.state.rotationX = this.autoBaseRotationX + autoRotationX;
         this.state.rotationY = this.autoBaseRotationY + autoRotationY;
-        
+
         // カメラ位置の更新
-        this.camera.position.set(
+        const newPosition = new THREE.Vector3(
             Math.sin(this.state.rotationX) * radius * Math.cos(this.state.rotationY),
             Math.sin(this.state.rotationY) * radius,
             Math.cos(this.state.rotationX) * radius * Math.cos(this.state.rotationY)
         );
+        this.updateVelocity(newPosition, radius);
+        this.camera.position.copy(newPosition);
+    }
+
+    updateVelocity(newPosition, radius) {
+        // 位置の変化量を計算
+        this.state.velocity.subVectors(newPosition, this.state.lastPosition);
+        const currentVelocity = this.state.velocity.length();
+
+        // 回転の変化量を計算（ラジアン）
+        const rotationDelta = Math.abs(
+            (this.state.rotationX - this.state.lastRotationX) + 
+            (this.state.rotationY - this.state.lastRotationY)
+        );
+
+        // 実際の円周上での移動量に変換（回転角 * 半径）
+        const rotationVelocity = rotationDelta * radius;
+
+        // 並進速度と回転速度の大きい方を採用
+        const totalVelocity = Math.max(currentVelocity, rotationVelocity);
+
+        // 履歴を更新
+        this.state.velocityHistory.shift();
+        this.state.velocityHistory.push(totalVelocity);
+
+        // 平滑化
+        this.state.smoothVelocity = this.state.velocityHistory.reduce((a, b) => a + b) / 
+                                   this.state.velocityHistory.length;
+
+        // 現在の状態を保存
+        this.state.lastPosition.copy(newPosition);
+        this.state.lastRotationX = this.state.rotationX;
+        this.state.lastRotationY = this.state.rotationY;
+    }
+
+    getVelocity() {
+        // より適切な最大速度値（カメラの動きの実測値に基づいて調整）
+        const maxVelocity = 2.0;
+        return Math.min(this.state.smoothVelocity / maxVelocity, 1.0);
     }
 }

@@ -1,7 +1,7 @@
 class ParticleSystem {
     constructor(scene, camera) {
         this.NUM_PARTICLES = 80000;
-        this.BOUNDS = 80;
+        this.BOUNDS = 100;
         this.GRID_SIZE = 16;
         this.RESPAWN_RADIUS = 5;
         

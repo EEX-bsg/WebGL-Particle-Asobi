@@ -3,6 +3,7 @@ class StatusBar {
         this.lastTime = performance.now();
         this.frameCount = 0;
         this.fps = 0;
+        this.effects = new Map();
         this.createStatusBar();
         this.updateInterval = setInterval(() => this.updateFPS(), 1000);
     }
@@ -37,6 +38,10 @@ class StatusBar {
         this.rotationElement = document.createElement('div');
         this.container.appendChild(this.rotationElement);
 
+        // エフェクト情報用のコンテナ
+        this.effectsElement = document.createElement('div');
+        this.container.appendChild(this.effectsElement);
+
         document.body.appendChild(this.container);
     }
 
@@ -46,6 +51,27 @@ class StatusBar {
         this.fps = Math.round((this.frameCount * 1000) / deltaTime);
         this.frameCount = 0;
         this.lastTime = currentTime;
+    }
+
+    // エフェクト情報の追加
+    addEffect(name, value) {
+        this.effects.set(name, value);
+        this.updateEffectsDisplay();
+    }
+
+    // エフェクト情報の更新
+    updateEffect(name, value) {
+        this.effects.set(name, value);
+        this.updateEffectsDisplay();
+    }
+
+    // エフェクト情報の表示更新
+    updateEffectsDisplay() {
+        let effectsText = '';
+        this.effects.forEach((value, name) => {
+            effectsText += `${name}: ${value}\n`;
+        });
+        this.effectsElement.textContent = effectsText;
     }
 
     update(camera, cameraController) {

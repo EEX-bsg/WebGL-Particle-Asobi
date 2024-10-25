@@ -23,17 +23,22 @@ const Shaders = {
 
             // 距離に基づく透明度の計算
             // 遠すぎる場合の減衰
-            float farFade = 1.0 - smoothstep(30.0, 100.0, vDistance);
+            float farFade = 1.0 - smoothstep(20.0, 80.0, vDistance);
             // 近すぎる場合の減衰
             float nearFade = smoothstep(1.0, 8.0, vDistance);
             // 両方の減衰を組み合わせる
             float distanceFade = min(farFade, nearFade);
 
             // 最終的な不透明度の計算（0.1から0.9の範囲）
-            float opacity = mix(0.2, 0.9, distanceFade);
+            float opacity = mix(0.1, 0.9, distanceFade);
 
             // カメラからの距離に応じた色の調整
             vec3 color = vec3(0.4, 0.85, 1.0) * (1.0 - vDistance * 0.001);
+
+            // 中心部分をより明るく
+            float centerIntensity = 1.0 - length(gl_PointCoord - 0.5) * 2.0;
+            centerIntensity = max(0.0, centerIntensity);
+            color += color * centerIntensity * 0.5;
 
             // 最終的な色と透明度の設定
             gl_FragColor = vec4(color, texColor.a * opacity);
