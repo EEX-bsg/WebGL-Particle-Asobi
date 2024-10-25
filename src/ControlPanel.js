@@ -28,6 +28,7 @@ class ControlPanel {
                 distance: 50
             }
         };
+        this.createSettingsButton();
         this.createPanel();
         this.setupKeyboardControls();
     }
@@ -53,6 +54,51 @@ class ControlPanel {
 
         this.createGroups();
         document.body.appendChild(this.container);
+    }
+
+    createSettingsButton() {
+        this.button = document.createElement('button');
+        this.button.innerHTML = `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        `;
+        this.button.style.cssText = `
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: #88ccff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            opacity: 0.5;
+        `;
+
+        // ホバーエフェクト（PCのみ）
+        this.button.addEventListener('mouseenter', () => {
+            this.button.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+            this.button.style.transform = 'scale(1.1)';
+        });
+
+        this.button.addEventListener('mouseleave', () => {
+            this.button.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            this.button.style.transform = 'scale(1)';
+        });
+
+        // クリック/タップハンドラ
+        this.button.addEventListener('click', () => this.toggleVisibility());
+
+        document.body.appendChild(this.button);
     }
 
     createGroups() {
@@ -325,5 +371,14 @@ class ControlPanel {
     toggleVisibility() {
         this.visible = !this.visible;
         this.container.style.display = this.visible ? 'block' : 'none';
+    }
+
+    dispose() {
+        if (this.button && this.button.parentNode) {
+            this.button.parentNode.removeChild(this.button);
+        }
+        if (this.container && this.container.parentNode) {
+            this.container.parentNode.removeChild(this.container);
+        }
     }
 }

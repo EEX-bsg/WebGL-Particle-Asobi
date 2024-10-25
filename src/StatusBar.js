@@ -3,20 +3,19 @@ class StatusBar {
         this.lastTime = performance.now();
         this.frameCount = 0;
         this.fps = 0;
-        this.effects = new Map();
+        this.startTime = performance.now();
         this.createStatusBar();
         this.updateInterval = setInterval(() => this.updateFPS(), 1000);
     }
 
     createStatusBar() {
-        // ステータスバーのコンテナ
         this.container = document.createElement('div');
         this.container.style.cssText = `
             position: fixed;
             bottom: 10px;
             right: 10px;
-            background-color: rgba(0, 10, 10, 0.7);
-            color: #91defa;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
             padding: 10px;
             font-family: monospace;
             font-size: 12px;
@@ -30,6 +29,10 @@ class StatusBar {
         this.fpsElement = document.createElement('div');
         this.container.appendChild(this.fpsElement);
 
+        // 画面内パーティクル数
+        this.visibleParticlesElement = document.createElement('div');
+        this.container.appendChild(this.visibleParticlesElement);
+
         // カメラ位置表示
         this.positionElement = document.createElement('div');
         this.container.appendChild(this.positionElement);
@@ -38,11 +41,27 @@ class StatusBar {
         this.rotationElement = document.createElement('div');
         this.container.appendChild(this.rotationElement);
 
-        // エフェクト情報用のコンテナ
-        this.effectsElement = document.createElement('div');
-        this.container.appendChild(this.effectsElement);
+         // 平均力場強度
+         this.forceFieldElement = document.createElement('div');
+         this.container.appendChild(this.forceFieldElement);
+
+        // 経過時間表示
+        this.elapsedTimeElement = document.createElement('div');
+        this.container.appendChild(this.elapsedTimeElement);
+
 
         document.body.appendChild(this.container);
+    }
+
+    formatElapsedTime(ms) {
+        const seconds = Math.floor((ms / 1000) % 60);
+        const minutes = Math.floor((ms / (1000 * 60)) % 60);
+        const hours = Math.floor(ms / (1000 * 60 * 60));
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    formatNumber(num) {
+        return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
 
     updateFPS() {
@@ -53,36 +72,29 @@ class StatusBar {
         this.lastTime = currentTime;
     }
 
-    // エフェクト情報の追加
-    addEffect(name, value) {
-        this.effects.set(name, value);
-        this.updateEffectsDisplay();
-    }
-
-    // エフェクト情報の更新
-    updateEffect(name, value) {
-        this.effects.set(name, value);
-        this.updateEffectsDisplay();
-    }
-
-    // エフェクト情報の表示更新
-    updateEffectsDisplay() {
-        let effectsText = '';
-        this.effects.forEach((value, name) => {
-            effectsText += `${name}: ${value}\n`;
-        });
-        this.effectsElement.textContent = effectsText;
-    }
-
-    update(camera, cameraController) {
+    update(camera, cameraController, particleSystem) {
         this.frameCount++;
 
         // FPSの表示
         this.fpsElement.textContent = `FPS: ${this.fps}`;
 
+        // 経過時間の表示
+        const elapsedTime = performance.now() - this.startTime;
+        this.elapsedTimeElement.textContent = `Time: ${this.formatElapsedTime(elapsedTime)}`;
+
+        // 画面内パーティクル数の計算と表示
+        const visibleParticles = particleSystem.getVisibleParticleCount();
+        const totalParticles = particleSystem.settings.count;
+        this.visibleParticlesElement.textContent = 
+            `Particles: ${this.formatNumber(visibleParticles)}/${this.formatNumber(totalParticles)}`;
+
+        // 平均力場強度の表示（ブラックホール効果を含む）
+        const avgForce = particleSystem.getAverageForce();
+        this.forceFieldElement.textContent = `Force: ${avgForce.toFixed(3)}`;
+
         // カメラ位置の表示（小数点2桁まで）
         const pos = camera.position;
-        this.positionElement.textContent = `Position: X:${pos.x.toFixed(2)} Y:${pos.y.toFixed(2)} Z:${pos.z.toFixed(2)}`;
+        this.positionElement.textContent = `Cam Pos: X:${pos.x.toFixed(2)} Y:${pos.y.toFixed(2)} Z:${pos.z.toFixed(2)}`;
 
         // カメラの向き（回転）の表示
         // ラジアンから度に変換して表示
@@ -91,10 +103,13 @@ class StatusBar {
             y: (cameraController.state.rotationY * 180 / Math.PI) % 360
         };
         this.rotationElement.textContent = 
-            `Rotation: X:${rotation.x.toFixed(2)}° Y:${rotation.y.toFixed(2)}°`;
+            `Cam Rot: X:${rotation.x.toFixed(2)}° Y:${rotation.y.toFixed(2)}°`;
     }
 
-    // クリーンアップ用のメソッド
+    setVisibility(visible) {
+        this.container.style.display = visible ? 'block' : 'none';
+    }
+
     dispose() {
         clearInterval(this.updateInterval);
         if (this.container && this.container.parentNode) {

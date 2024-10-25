@@ -75,10 +75,6 @@ class App {
         this.cameraController = new CameraController(this.camera);
         this.statusBar = new StatusBar();
         this.time = 0;
-
-        // ステータスバーに効果の強度情報を追加
-        this.statusBar.addEffect('Bloom', this.effects.bloom.strength);
-        this.statusBar.addEffect('Motion Blur', this.effects.afterimage.uniforms['damp'].value);
     }
 
     setupEventListeners() {
@@ -94,10 +90,6 @@ class App {
         // 速度に応じて残像の強度を調整
         this.effects.afterimage.uniforms['damp'].value = 
             Math.min(0.98, baseAfterimage + velocity * maxAdditional);
-
-        // ステータスバーの更新
-        this.statusBar.updateEffect('Motion Blur', 
-            this.effects.afterimage.uniforms['damp'].value.toFixed(3));
     }
 
     handleResize() {
@@ -120,7 +112,7 @@ class App {
         this.particleSystem.updateCameraPosition(this.camera.position);
 
         this.updateEffects();
-        this.statusBar.update(this.camera, this.cameraController);
+        this.statusBar.update(this.camera, this.cameraController, this.particleSystem);
 
         // レンダリング
         if (this.postProcessingEnabled) {

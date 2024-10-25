@@ -126,6 +126,7 @@ class ParticleSystem {
     }
 
     update(time, blackHoleForce) {
+        this.lastBlackHoleForce = blackHoleForce;
         this.updateForceField(time);
         this.updateParticles(blackHoleForce);
         this.geometry.attributes.position.needsUpdate = true;
@@ -239,6 +240,51 @@ class ParticleSystem {
 
     updateCameraPosition(cameraPosition) {
         this.points.material.uniforms.cameraPosition = cameraPosition;
+    }
+
+    getVisibleParticleCount() {
+        if (!this.camera || !this.geometry) return 0;
+
+        const frustum = new THREE.Frustum();
+        const matrix = new THREE.Matrix4().multiplyMatrices(
+            this.camera.projectionMatrix,
+            this.camera.matrixWorldInverse
+        );
+        frustum.setFromProjectionMatrix(matrix);
+
+        let visibleCount = 0;
+        const positions = this.geometry.attributes.position.array;
+        const tempVector = new THREE.Vector3();
+
+        for (let i = 0; i < positions.length; i += 3) {
+            tempVector.set(positions[i], positions[i + 1], positions[i + 2]);
+            if (frustum.containsPoint(tempVector)) {
+                visibleCount++;
+            }
+        }
+
+        return visibleCount;
+    }
+
+    getAverageForce() {
+        if (!this.forceField) return 0;
+
+        let totalForce = 0;
+        let count = 0;
+
+        // 通常の力場の平均を計算
+        for (let i = 0; i < this.forceField.length; i++) {
+            totalForce += Math.abs(this.forceField[i]);
+            count++;
+        }
+
+        // ブラックホール効果がある場合はその強度も考慮
+        if (this.lastBlackHoleForce > 0) {
+            totalForce += this.lastBlackHoleForce * 2; // ブラックホール効果に重み付け
+            count++;
+        }
+
+        return count > 0 ? totalForce / count : 0;
     }
 
     dispose() {
