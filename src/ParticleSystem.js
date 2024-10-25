@@ -114,8 +114,8 @@ class ParticleSystem {
                     particleTexture: { value: new THREE.CanvasTexture(this.createParticleTexture()) },
                     particleSize: { value: this.settings.size }
                 },
-                vertexShader: Shaders.vertex,
-                fragmentShader: Shaders.fragment,
+                vertexShader: CustomShaders.vertex,
+                fragmentShader: CustomShaders.fragment,
                 transparent: true,
                 depthWrite: false,
                 blending: THREE.AdditiveBlending

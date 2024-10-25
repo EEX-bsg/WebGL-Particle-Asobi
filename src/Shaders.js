@@ -1,4 +1,4 @@
-const Shaders = {
+const CustomShaders = {
     vertex: `
         varying float vDistance;
         void main() {
