@@ -168,7 +168,7 @@ class CameraController {
 
     update() {
         if (this.isAutoCamera) {
-            this.cameraTime += 0.0005;
+            this.cameraTime += 0.008;
         }
 
         if (this.state.isLongPress) {
