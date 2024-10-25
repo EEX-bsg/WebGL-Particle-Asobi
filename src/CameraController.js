@@ -1,6 +1,11 @@
 class CameraController {
     constructor(camera) {
         this.camera = camera;
+        this.settings = {
+            autoRotate: true,
+            rotationSpeed: 1.0,
+            baseRadius: 50
+        };
         this.state = {
             active: false,
             lastX: 0,
@@ -54,6 +59,21 @@ class CameraController {
         canvas.addEventListener('contextmenu', e => e.preventDefault());
         // マウスがキャンバス外に出た時の処理
         canvas.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
+    }
+
+    setAutoRotate(enabled) {
+        this.settings.autoRotate = enabled;
+        if (enabled) {
+            this.cameraTime = this.state.rotationX / 0.4;
+        }
+    }
+
+    setRotationSpeed(speed) {
+        this.settings.rotationSpeed = speed;
+    }
+
+    setDistance(distance) {
+        this.settings.baseRadius = distance;
     }
 
     // タッチ操作のハンドラー
@@ -181,8 +201,8 @@ class CameraController {
     }
 
     update() {
-        if (this.isAutoCamera) {
-            this.cameraTime += 0.008;
+        if (this.settings.autoRotate && this.isAutoCamera) {
+            this.cameraTime += 0.005 * this.settings.rotationSpeed;
         }
 
         if (this.state.isLongPress) {
@@ -191,10 +211,11 @@ class CameraController {
             this.state.blackHoleForce *= 0.95;
         }
 
-        const radius = (30 + Math.sin(this.cameraTime * 0.3) * 5 + 
+        const radius = (this.settings.baseRadius +
+                      Math.sin(this.cameraTime * 0.3) * 5 +
                       Math.sin(this.cameraTime * 0.5) * 5) * this.state.zoom;
         
-        if (!this.isAutoCamera) {
+        if (!this.settings.autoRotate || !this.isAutoCamera) {
             this.updateManualCamera(radius);
         } else {
             this.updateAutoCamera(radius);

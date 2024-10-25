@@ -1,26 +1,52 @@
 class ParticleSystem {
     constructor(scene, camera) {
-        this.NUM_PARTICLES = 80000;
-        this.BOUNDS = 100;
-        this.GRID_SIZE = 16;
-        this.RESPAWN_RADIUS = 5;
-        
         this.scene = scene;
         this.camera = camera;
-        this.particles = new Float32Array(this.NUM_PARTICLES * 3);
-        this.velocities = new Float32Array(this.NUM_PARTICLES * 3);
-        this.forceField = new Float32Array(this.GRID_SIZE ** 3);
-        this.time = 0;
-        
+        this.settings = {
+            count: 60000,
+            bounds: 80,
+            size: 1.0
+        };
+
+        this.initializeSystem();
+    }
+
+    initializeSystem() {
+        this.particles = new Float32Array(this.settings.count * 3);
+        this.velocities = new Float32Array(this.settings.count * 3);
+        this.gridSize = 16;
+        this.forceField = new Float32Array(this.gridSize ** 3);
+
         this.initParticles();
         this.createParticleSystem();
     }
 
     initParticles() {
-        for(let i = 0; i < this.NUM_PARTICLES * 3; i += 3) {
-            this.particles[i] = (Math.random() - 0.5) * this.BOUNDS;
-            this.particles[i + 1] = (Math.random() - 0.5) * this.BOUNDS;
-            this.particles[i + 2] = (Math.random() - 0.5) * this.BOUNDS;
+        for(let i = 0; i < this.particles.length; i += 3) {
+            this.particles[i] = (Math.random() - 0.5) * this.settings.bounds;
+            this.particles[i + 1] = (Math.random() - 0.5) * this.settings.bounds;
+            this.particles[i + 2] = (Math.random() - 0.5) * this.settings.bounds;
+        }
+    }
+
+    applySettings(newSettings) {
+        const needsRecreate = this.settings.count !== newSettings.count;
+
+        this.settings = { ...this.settings, ...newSettings };
+
+        if (needsRecreate) {
+            this.particles = new Float32Array(this.settings.count * 3);
+            this.velocities = new Float32Array(this.settings.count * 3);
+            this.initParticles();
+        }
+
+        // パーティクルサイズの更新
+        if (this.points) {
+            this.points.material.uniforms.particleSize.value = this.settings.size;
+        }
+
+        if (needsRecreate) {
+            this.createParticleSystem();
         }
     }
 
@@ -72,26 +98,34 @@ class ParticleSystem {
     }
 
     createParticleSystem() {
-        const geometry = new THREE.BufferGeometry().setAttribute('position', 
-            new THREE.BufferAttribute(this.particles, 3));
+        if (this.points) {
+            this.scene.remove(this.points);
+            this.geometry.dispose();
+            this.points.material.dispose();
+        }
 
-        this.points = new THREE.Points(geometry, new THREE.ShaderMaterial({
-            uniforms: {
-                particleTexture: { value: new THREE.CanvasTexture(this.createParticleTexture()) },
-                cameraPosition: { value: this.camera.position }
-            },
-            vertexShader: Shaders.vertex,
-            fragmentShader: Shaders.fragment,
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending
-        }));
+        this.geometry = new THREE.BufferGeometry();
+        this.geometry.setAttribute('position', new THREE.BufferAttribute(this.particles, 3));
+
+        this.points = new THREE.Points(
+            this.geometry,
+            new THREE.ShaderMaterial({
+                uniforms: {
+                    particleTexture: { value: new THREE.CanvasTexture(this.createParticleTexture()) },
+                    particleSize: { value: this.settings.size }
+                },
+                vertexShader: Shaders.vertex,
+                fragmentShader: Shaders.fragment,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            })
+        );
 
         this.scene.add(this.points);
-        this.geometry = geometry;
     }
 
-    update(time, blackHoleForce = 0) {
+    update(time, blackHoleForce) {
         this.updateForceField(time);
         this.updateParticles(blackHoleForce);
         this.geometry.attributes.position.needsUpdate = true;
@@ -101,21 +135,21 @@ class ParticleSystem {
         const waveSpeed = 2.0;  // 波の速さ
         const waveAmplitude = 0.2;  // 波の強さ
 
-        for(let i = 0; i < this.GRID_SIZE ** 3; i++) {
-            const x = i % this.GRID_SIZE;
-            const y = (i / this.GRID_SIZE | 0) % this.GRID_SIZE;
-            const z = i / (this.GRID_SIZE * this.GRID_SIZE) | 0;
+        for(let i = 0; i < this.gridSize ** 3; i++) {
+            const x = i % this.gridSize;
+            const y = (i / this.gridSize | 0) % this.gridSize;
+            const z = i / (this.gridSize * this.gridSize) | 0;
 
             // 既存の力場計算
-            this.forceField[i] = Math.sin((x/this.GRID_SIZE - 0.5) * 5 + time) * 
-                                Math.cos((y/this.GRID_SIZE - 0.5) * 4 + time * 1.3) * 
-                                Math.sin((z/this.GRID_SIZE - 0.5) * 3 + time * 0.7) * 0.5;
+            this.forceField[i] = Math.sin((x/this.gridSize - 0.5) * 5 + time) * 
+                                Math.cos((y/this.gridSize - 0.5) * 4 + time * 1.3) * 
+                                Math.sin((z/this.gridSize - 0.5) * 3 + time * 0.7) * 0.5;
 
             // 波打つ効果を追加
             const distanceFromCenter = Math.sqrt(
-                Math.pow((x / this.GRID_SIZE) - 0.5, 2) +
-                Math.pow((y / this.GRID_SIZE) - 0.5, 2) +
-                Math.pow((z / this.GRID_SIZE) - 0.5, 2)
+                Math.pow((x / this.gridSize) - 0.5, 2) +
+                Math.pow((y / this.gridSize) - 0.5, 2) +
+                Math.pow((z / this.gridSize) - 0.5, 2)
             );
 
             // 中心からの距離と時間に基づく波の効果
@@ -126,7 +160,7 @@ class ParticleSystem {
 
     updateParticles(blackHoleForce) {
         const positionArray = this.geometry.attributes.position.array;
-        const boundsSqr = (this.BOUNDS * 1.2) ** 2;  // 範囲判定用の二乗値
+        const boundsSqr = (this.settings.bounds * 1.2) ** 2;  // 範囲判定用の二乗値
 
         for(let i = 0; i < positionArray.length; i += 3) {
             this.applyForceField(positionArray, i);
@@ -164,12 +198,12 @@ class ParticleSystem {
 
     applyForceField(positionArray, i) {
         const gridPos = positionArray.slice(i, i + 3).map(
-            v => Math.floor((v / this.BOUNDS + 0.5) * (this.GRID_SIZE-1))
+            v => Math.floor((v / this.settings.bounds + 0.5) * (this.gridSize-1))
         );
 
-        if(gridPos.every(v => v >= 0 && v < this.GRID_SIZE)) {
-            const force = this.forceField[gridPos[0] + gridPos[1] * this.GRID_SIZE + 
-                         gridPos[2] * this.GRID_SIZE * this.GRID_SIZE];
+        if(gridPos.every(v => v >= 0 && v < this.gridSize)) {
+            const force = this.forceField[gridPos[0] + gridPos[1] * this.gridSize + 
+                         gridPos[2] * this.gridSize * this.gridSize];
             this.velocities[i] += force * 0.01;
             this.velocities[i + 1] += force * 0.01;
             this.velocities[i + 2] += force * 0.008;
@@ -196,7 +230,7 @@ class ParticleSystem {
         for(let j = 0; j < 3; j++) {
             this.velocities[i + j] *= 0.985;
             positionArray[i + j] += this.velocities[i + j];
-            if(Math.abs(positionArray[i + j]) > this.BOUNDS/2) {
+            if(Math.abs(positionArray[i + j]) > this.settings.bounds/2) {
                 positionArray[i + j] += (Math.random()-0.5) * 10
                 positionArray[i + j] *= -0.95;
             }
@@ -204,6 +238,14 @@ class ParticleSystem {
     }
 
     updateCameraPosition(cameraPosition) {
-        this.points.material.uniforms.cameraPosition.value = cameraPosition;
+        this.points.material.uniforms.cameraPosition = cameraPosition;
+    }
+
+    dispose() {
+        if (this.geometry) this.geometry.dispose();
+        if (this.points) {
+            this.points.material.dispose();
+            this.scene.remove(this.points);
+        }
     }
 }

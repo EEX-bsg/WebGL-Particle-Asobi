@@ -12,7 +12,13 @@ class App {
         this.setupPostProcessing();
         this.initSystems();
         this.setupEventListeners();
+        this.controlPanel = new ControlPanel(this);
         this.animate();
+    }
+
+     // ControlPanel用のメソッド
+     setPostProcessingEnabled(enabled) {
+        this.postProcessingEnabled = enabled;
     }
 
     setupRenderer() {
@@ -43,7 +49,7 @@ class App {
 
         // Bloomパラメータの微調整
         bloomPass.threshold = 0;
-        bloomPass.strength = 1.3;
+        bloomPass.strength = 0.8;
         bloomPass.radius = 1.0;
 
         this.composer.addPass(bloomPass);
@@ -51,15 +57,17 @@ class App {
 
         // モーションブラーエフェクト（AfterimagePass）
         const afterimagePass = new THREE.AfterimagePass();
-        afterimagePass.uniforms['damp'].value = 0.1; // 残像の減衰率（0.9-0.98: 大きいほど残像が長く残る）
+        afterimagePass.uniforms['damp'].value = 0.2;
         this.composer.addPass(afterimagePass);
-        this.afterimagePass = afterimagePass;
 
-        // エフェクトの強度を動的に調整できるように保存
+        // エフェクトの参照を保存
         this.effects = {
             bloom: bloomPass,
             afterimage: afterimagePass
         };
+
+        // 初期状態ではすべて有効
+        this.postProcessingEnabled = true;
     }
 
     initSystems() {
@@ -114,8 +122,12 @@ class App {
         this.updateEffects();
         this.statusBar.update(this.camera, this.cameraController);
 
-        // レンダリングをcomposerに変更
-        this.composer.render();
+        // レンダリング
+        if (this.postProcessingEnabled) {
+            this.composer.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     dispose() {
