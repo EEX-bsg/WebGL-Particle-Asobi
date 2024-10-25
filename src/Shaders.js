@@ -9,7 +9,7 @@ const Shaders = {
             // 近すぎる場合（10未満）は徐々にサイズを0に
             // 適正距離（10-60）では通常のサイズ計算
             float baseSize = 180.0 / (-mvPosition.z);
-            float nearFade = smoothstep(1.0, 5.0, -mvPosition.z);
+            float nearFade = smoothstep(1.0, 3.0, -mvPosition.z);
             gl_PointSize = max(1.2, baseSize * nearFade);
 
             gl_Position = projectionMatrix * mvPosition;

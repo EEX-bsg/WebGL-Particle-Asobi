@@ -27,6 +27,7 @@ class App {
     initSystems() {
         this.particleSystem = new ParticleSystem(this.scene, this.camera);
         this.cameraController = new CameraController(this.camera);
+        this.statusBar = new StatusBar();
         this.time = 0;
     }
 
@@ -48,9 +49,20 @@ class App {
         this.particleSystem.update(this.time, blackHoleForce);
         this.particleSystem.updateCameraPosition(this.camera.position);
         
+        this.statusBar.update(this.camera, this.cameraController);
         this.renderer.render(this.scene, this.camera);
+    }
+
+    dispose() {
+        this.statusBar.dispose();
+        // 他のクリーンアップ処理があれば追加
     }
 }
 
 // Start the application
 const app = new App();
+
+// クリーンアップ用のイベントリスナー
+window.addEventListener('unload', () => {
+    app.dispose();
+});
