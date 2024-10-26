@@ -6,8 +6,22 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    
+    <!-- Vue.js のUIコンポーネント用コンテナ -->
+    <div id="app">
+        <status-panel 
+            v-if="settings.display.showStatusBar"
+            :stats="stats">
+        </status-panel>
+        
+        <control-panel 
+            :settings="settings"
+            @update:settings="updateSettings">
+        </control-panel>
+    </div>
+
+    <!-- Three.js関連ライブラリ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- ポストプロセッシング関連のライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
@@ -16,11 +30,24 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/AfterimageShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="src/Shaders.js"></script>
-    <script src="src/ParticleSystem.js"></script>
-    <script src="src/CameraController.js"></script>
-    <script src="src/StatusBar.js"></script>
-    <script src="src/ControlPanel.js"></script>
+
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <!-- アプリケーションコード -->
+    <script src="src/three/Shaders.js"></script>
+    <script src="src/three/ParticleSystem.js"></script>
+    <script src="src/three/CameraController.js"></script>
+    <script src="src/three/ThreeApp.js"></script>
+
+    <!-- Vueコンポーネント -->
+    <script src="src/components/common/RangeSlider.js"></script>
+    <script src="src/components/common/CheckBox.js"></script>
+    <script src="src/components/common/Group.js"></script>
+    <script src="src/components/StatusPanel.js"></script>
+    <script src="src/components/ControlPanel.js"></script>
+
+    <!-- メインアプリケーション -->
     <script src="src/main.js"></script>
 </body>
 </html>

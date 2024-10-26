@@ -1,20 +1,84 @@
+/* Base styles */
 body {
     margin: 0;
     overflow: hidden;
-    background: #000
+    background: #000;
 }
+
 canvas {
     width: 100vw;
     height: 100vh;
-    touch-action: none
+    touch-action: none;
 }
+
+/* Common UI components */
+.panel {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+/* Status Panel */
+.status-panel {
+    bottom: 10px;
+    right: 10px;
+    min-width: 200px;
+    font-family: monospace;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.status-panel div {
+    margin: 2px 0;
+}
+
+/* Control Panel */
+.control-panel {
+    top: 10px;
+    right: 10px;
+    width: 300px;
+    max-height: 90vh;
+    overflow-y: auto;
+    font-size: 12px;
+}
+
+.settings-group {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.settings-group-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #88ccff;
+    border-bottom: 1px solid #88ccff;
+    padding-bottom: 5px;
+}
+
+/* Form Controls */
+.control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+/* Range Slider */
 input[type="range"] {
     -webkit-appearance: none;
     background: rgba(255, 255, 255, 0.2);
     height: 4px;
     border-radius: 2px;
     margin: 8px 0;
+    width: 100%;
 }
+
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 12px;
@@ -23,7 +87,48 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     cursor: pointer;
 }
-/* チェックボックスのスタイル */
+
+/* Checkbox */
 input[type="checkbox"] {
     accent-color: #88ccff;
+}
+
+/* Button */
+.settings-button {
+    width: 100%;
+    padding: 8px;
+    background-color: #88ccff;
+    color: #000;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+/* Settings Toggle Button */
+.settings-toggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: #88ccff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.3s ease;
+    z-index: 1001;
+    opacity: 0.5;
+}
+
+.settings-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+    transform: scale(1.1);
+    opacity: 1;
 }
