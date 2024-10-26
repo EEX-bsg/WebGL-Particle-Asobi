@@ -4,7 +4,7 @@ class ControlPanel {
         this.visible = false;
         this.settings = {
             display: {
-                showStatusBar: true
+                showStatusPanel: true
             },
             postProcessing: {
                 enabled: true,
@@ -103,11 +103,11 @@ class ControlPanel {
         
         const checkbox = this.createCheckbox(
             'Show Status Panel',
-            this.settings.display.showStatusBar,
+            this.settings.display.showStatusPanel,
             (value) => {
-                this.settings.display.showStatusBar = value;
-                if (this.app.statusBar) {
-                    this.app.statusBar.setVisibility(value);
+                this.settings.display.showStatusPanel = value;
+                if (this.app.StatusPanel) {
+                    this.app.StatusPanel.setVisibility(value);
                 }
             }
         );
