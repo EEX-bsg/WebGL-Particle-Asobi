@@ -4,7 +4,8 @@ class ControlPanel {
         this.visible = false;
         this.settings = {
             display: {
-                showStatusPanel: true
+                showStatusPanel: true,
+                fullscreen: false
             },
             postProcessing: {
                 enabled: true,
@@ -118,8 +119,9 @@ class ControlPanel {
 
     createDisplaySection() {
         const content = document.createElement('div');
-        
-        const checkbox = this.createCheckbox(
+
+        // ステータスパネルの表示設定
+        content.appendChild(this.createCheckbox(
             'Show Status Panel',
             this.settings.display.showStatusPanel,
             (value) => {
@@ -128,15 +130,104 @@ class ControlPanel {
                     this.app.StatusPanel.setVisibility(value);
                 }
             }
+        ));
+
+        // 全画面表示の設定を追加
+        this.fullscreenCheckbox = this.createCheckbox(
+            'Fullscreen Mode',
+            this.settings.display.fullscreen,
+            async (value) => {
+                this.settings.display.fullscreen = value;
+                if (value) {
+                    await this.enterFullscreen();
+                } else {
+                    await this.exitFullscreen();
+                }
+            }
         );
-        
-        content.appendChild(checkbox);
+        content.appendChild(this.fullscreenCheckbox);
+
         this.container.appendChild(this.createSection('Display Settings', content));
+    }
+
+    updateFullscreenState(isFullscreen) {
+        this.settings.display.fullscreen = isFullscreen;
+        const checkbox = this.fullscreenCheckbox.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+            checkbox.checked = isFullscreen;
+        }
+    }
+
+    async enterFullscreen() {
+        try {
+            // モバイルデバイスかどうかを確認
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // モバイルデバイスの場合
+                const orientation = screen.orientation;
+                
+                if (orientation && 'type' in orientation) {
+                    // 現在の向きを確認
+                    const isPortrait = orientation.type.includes('portrait');
+                    
+                    if (isPortrait && 'lock' in orientation) {
+                        try {
+                            // 可能であれば現在の向きを保持したまま全画面化を試みる
+                            await orientation.lock(orientation.type);
+                        } catch (error) {
+                            // 向きのロックができない場合は横向きで全画面化
+                            try {
+                                await orientation.lock('landscape');
+                            } catch (lockError) {
+                                console.log('Unable to lock orientation');
+                            }
+                        }
+                    }
+                }
+            }
+
+            // フルスクリーン化
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                await elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                await elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                await elem.msRequestFullscreen();
+            }
+        } catch (error) {
+            console.log('Fullscreen request failed:', error);
+            this.updateFullscreenState(false);
+        }
+    }
+
+    async exitFullscreen() {
+        try {
+            if (document.exitFullscreen) {
+                await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                await document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                await document.msExitFullscreen();
+            }
+
+            // スクリーンの向きのロックを解除（モバイルの場合）
+            if ('screen' in window && 'orientation' in screen && 'unlock' in screen.orientation) {
+                try {
+                    await screen.orientation.unlock();
+                } catch (error) {
+                    console.log('Unable to unlock orientation:', error);
+                }
+            }
+        } catch (error) {
+            console.log('Exit fullscreen failed:', error);
+        }
     }
 
     createPostProcessingSection() {
         const content = document.createElement('div');
-        
+
         // メインのポストプロセス設定
         content.appendChild(this.createCheckbox(
             'Enable Post Processing',
@@ -440,7 +531,7 @@ class ControlPanel {
         if (this.container && this.container.parentNode) {
             this.container.parentNode.removeChild(this.container);
         }
-        
+
         // イベントリスナーのクリーンアップ
         document.removeEventListener('keydown', this.handleKeyPress);
     }

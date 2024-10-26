@@ -14,6 +14,13 @@ class App {
         this.setupEventListeners();
         this.controlPanel = new ControlPanel(this);
         this.animate();
+
+        // フルスクリーンの状態変更を監視
+        // const handleFullscreen = this.handleFullscreenChange.bind(this);
+        // document.addEventListener('fullscreenchange', handleFullscreen);
+        // document.addEventListener('webkitfullscreenchange', handleFullscreen);
+        // document.addEventListener('mozfullscreenchange', handleFullscreen);
+        // document.addEventListener('MSFullscreenChange', handleFullscreen);
     }
 
      // ControlPanel用のメソッド
@@ -101,6 +108,18 @@ class App {
 
         this.renderer.setSize(width, height);
         this.composer.setSize(width, height);
+    }
+
+    handleFullscreenChange() {
+        const isFullscreen =    document.fullscreenElement !== null ||
+                                document.webkitFullscreenElement !== null ||
+                                document.mozFullScreenElement !== null ||
+                                document.msFullscreenElement !== null;
+
+        // ControlPanelの設定とチェックボックスを更新
+        if (this.controlPanel) {
+            this.controlPanel.updateFullscreenState(isFullscreen);
+        }
     }
 
     animate() {
