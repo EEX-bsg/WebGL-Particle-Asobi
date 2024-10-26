@@ -1,0 +1,63 @@
+.control-panel {
+    transform: translateX(100%);
+    transition: all 0.3s ease-out;
+    opacity: 0;
+}
+
+.control-panel.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* セクションヘッダーのアニメーション */
+.section-header {
+    transform: translateX(50px);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.2s ease-out;
+}
+
+.section-header.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* コントロール要素のアニメーション */
+.section-content {
+    display: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.section-content.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-content .control-item {
+    opacity: 0;
+    transform: translateX(20px);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.section-content .control-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* アニメーション時のスムーズな高さ変更 */
+.control-section {
+    overflow: hidden;
+}
+
+/* Applyボタンの特別なアニメーション */
+.apply-button {
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.apply-button.visible {
+    opacity: 1;
+    transform: scale(1);
+}

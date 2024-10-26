@@ -73,10 +73,14 @@ class ControlPanel {
 
         header.addEventListener('click', () => {
             const isExpanded = contentDiv.style.display === 'block';
-            
+
             // 他のすべてのセクションを閉じる
             this.container.querySelectorAll('.section-content').forEach(content => {
                 content.style.display = 'none';
+                content.classList.remove('visible');
+                content.querySelectorAll('.control-item, .apply-button').forEach(item => {
+                    item.classList.remove('visible');
+                });
             });
             this.container.querySelectorAll('.section-header').forEach(header => {
                 header.classList.remove('active');
@@ -87,6 +91,19 @@ class ControlPanel {
                 contentDiv.style.display = 'block';
                 header.classList.add('active');
                 this.activeSection = title;
+
+                // コンテンツのフェードイン
+                setTimeout(() => {
+                    contentDiv.classList.add('visible');
+
+                    // コントロール要素とApplyボタンの順次表示
+                    const items = contentDiv.querySelectorAll('.control-item, .apply-button');
+                    items.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('visible');
+                        }, 50 + index * 50);
+                    });
+                }, 50);
             } else {
                 this.activeSection = null;
             }
@@ -338,17 +355,66 @@ class ControlPanel {
 
     toggleVisibility() {
         this.visible = !this.visible;
-        this.container.style.display = this.visible ? 'block' : 'none';
-        
-        if (!this.visible) {
-            // パネルを閉じる時にすべてのセクションを閉じる
-            this.container.querySelectorAll('.section-content').forEach(content => {
-                content.style.display = 'none';
+
+        if (this.visible) {
+            // パネルの表示開始
+            this.container.style.display = 'block';
+            // 表示直後のreflowを強制
+            this.container.offsetHeight;
+
+            // ベースパネルのアニメーション
+            this.container.classList.add('visible');
+
+            // ヘッダーの順次表示
+            const headers = this.container.querySelectorAll('.section-header');
+            headers.forEach((header, index) => {
+                setTimeout(() => {
+                    header.classList.add('visible');
+                }, 100 + index * 50);
             });
+
+            // アクティブなセクションがある場合は、そのコンテンツも表示
+            if (this.activeSection) {
+                const activeHeader = this.container.querySelector(`.section-header.active`);
+                const activeContent = activeHeader?.nextElementSibling;
+                if (activeContent) {
+                    activeContent.style.display = 'block';
+                    setTimeout(() => {
+                        activeContent.classList.add('visible');
+                        // コントロール要素の順次表示
+                        const items = activeContent.querySelectorAll('.control-item, .apply-button');
+                        items.forEach((item, index) => {
+                            setTimeout(() => {
+                                item.classList.add('visible');
+                            }, 50 + index * 50);
+                        });
+                    }, 300);
+                }
+            }
+
+        } else {
+            // 非表示アニメーション
+            this.container.classList.remove('visible');
+
+            // すべての要素のアニメーションクラスを削除
             this.container.querySelectorAll('.section-header').forEach(header => {
-                header.classList.remove('active');
+                header.classList.remove('visible');
             });
-            this.activeSection = null;
+
+            const activeContent = this.container.querySelector('.section-content.visible');
+            if (activeContent) {
+                activeContent.querySelectorAll('.control-item, .apply-button').forEach(item => {
+                    item.classList.remove('visible');
+                });
+                activeContent.classList.remove('visible');
+            }
+
+            // アニメーション完了後に非表示
+            setTimeout(() => {
+                if (!this.visible) {
+                    this.container.style.display = 'none';
+                }
+            }, 300);
         }
     }
 

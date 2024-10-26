@@ -47,8 +47,8 @@ canvas {
 /* コントロールパネル固有のスタイル */
 .control-panel {
     top: 60px;
-    right: 10px;
-    width: 280px;
+    right: 0px;
+    width: 300px;
     max-height: 80vh;
     overflow-y: auto;
     display: none;
@@ -149,7 +149,7 @@ input[type="checkbox"] {
 .settings-button {
     position: fixed;
     top: 15px;
-    right: 10px;
+    right: 5px;
     width: 40px;
     height: 40px;
     border-radius: 50%;
