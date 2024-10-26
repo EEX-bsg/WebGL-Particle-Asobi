@@ -20,7 +20,8 @@ class ControlPanel {
             particles: {
                 count: 60000,
                 bounds: 80,
-                size: 1.0
+                size: 1.0,
+                blackHoleRadius: 1.3
             },
             camera: {
                 autoRotate: true,
@@ -217,6 +218,20 @@ class ControlPanel {
             this.settings.particles.bounds,
             (value) => {
                 this.settings.particles.bounds = parseInt(value);
+            }
+        ));
+
+        // ブラックホール半径の設定を追加
+        content.appendChild(this.createSlider(
+            'Black Hole Radius',
+            0.6, 1.8, 0.05,
+            this.settings.particles.blackHoleRadius,
+            (value) => {
+                this.settings.particles.blackHoleRadius = parseFloat(value);
+                // リアルタイムで適用（Apply不要）
+                if (this.app.particleSystem) {
+                    this.app.particleSystem.settings.blackHoleRadius = value;
+                }
             }
         ));
 

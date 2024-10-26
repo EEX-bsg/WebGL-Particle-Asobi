@@ -5,7 +5,8 @@ class ParticleSystem {
         this.settings = {
             count: 60000,
             bounds: 80,
-            size: 1.0
+            size: 1.0,
+            blackHoleRadius: 1.3
         };
 
         this.initializeSystem();
@@ -213,7 +214,7 @@ class ParticleSystem {
 
     applyBlackHoleEffect(positionArray, i, blackHoleForce) {
         const x = positionArray[i], y = positionArray[i + 1], z = positionArray[i + 2];
-        const dist = Math.hypot(x, y, z) / 0.6;
+        const dist = Math.hypot(x, y, z) * this.settings.blackHoleRadius;
         if (dist > 0) {
             const forceMagnitude = blackHoleForce * (1 / (1 + dist * 0.1));
             const angle = Math.atan2(y, x) + 0.1;
