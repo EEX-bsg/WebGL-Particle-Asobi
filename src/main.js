@@ -73,7 +73,7 @@ class App {
     initSystems() {
         this.particleSystem = new ParticleSystem(this.scene, this.camera)
         this.cameraController = new CameraController(this.camera);
-        this.statusBar = new StatusBar();
+        this.StatusPanel = new StatusPanel();
         this.time = 0;
     }
 
@@ -112,7 +112,7 @@ class App {
         this.particleSystem.updateCameraPosition(this.camera.position);
 
         this.updateEffects();
-        this.statusBar.update(this.camera, this.cameraController, this.particleSystem);
+        this.StatusPanel.update(this.camera, this.cameraController, this.particleSystem);
 
         // レンダリング
         if (this.postProcessingEnabled) {
@@ -123,7 +123,7 @@ class App {
     }
 
     dispose() {
-        this.statusBar.dispose();
+        this.StatusPanel.dispose();
         if (this.composer) {
             this.composer.dispose();
         }
