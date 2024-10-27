@@ -34,6 +34,8 @@ class ControlPanel {
         this.settings.particles.size += 0.1
         this.settings.particles.size -= 0.1
 
+        this.setupLocalStorage();
+
         // パネルの状態管理
         this.activeSection = null;
         this.touchStartY = 0;
@@ -60,6 +62,7 @@ class ControlPanel {
         this.createPostProcessingSection();
         this.createParticleSection();
         this.createCameraSection();
+        this.createSettingsManagementSection();
 
         document.body.appendChild(this.container);
     }
@@ -83,7 +86,7 @@ class ControlPanel {
             this.container.querySelectorAll('.section-content').forEach(content => {
                 content.style.display = 'none';
                 content.classList.remove('visible');
-                content.querySelectorAll('.control-item, .apply-button').forEach(item => {
+                content.querySelectorAll('.control-item, .control-button').forEach(item => {
                     item.classList.remove('visible');
                 });
             });
@@ -102,7 +105,7 @@ class ControlPanel {
                     contentDiv.classList.add('visible');
 
                     // コントロール要素とApplyボタンの順次表示
-                    const items = contentDiv.querySelectorAll('.control-item, .apply-button');
+                    const items = contentDiv.querySelectorAll('.control-item, .control-button');
                     items.forEach((item, index) => {
                         setTimeout(() => {
                             item.classList.add('visible');
@@ -399,6 +402,48 @@ class ControlPanel {
         this.container.appendChild(this.createSection('Camera Settings', content));
     }
 
+    createSettingsManagementSection() {
+        const content = document.createElement('div');
+    
+        // Reset Settings Button
+        const resetButton = this.createButton(
+            'Reset to Default',
+            'reset-button',
+            this.handleReset.bind(this),
+            'assets/reset-icon.svg'
+        );
+        content.appendChild(resetButton);
+    
+        // Import Settings Button
+        const importButton = this.createButton(
+            'Import Settings',
+            'import-button',
+            this.handleImport.bind(this),
+            'assets/import-icon.svg'
+        );
+        content.appendChild(importButton);
+    
+        // Export Settings Button
+        const exportButton = this.createButton(
+            'Export Settings',
+            'export-button',
+            this.handleExport.bind(this),
+            'assets/export-icon.svg'
+        );
+        content.appendChild(exportButton);
+    
+        // ファイル入力要素
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json';
+        fileInput.style.display = 'none';
+        fileInput.addEventListener('change', this.handleFileInput.bind(this));
+        content.appendChild(fileInput);
+    
+        this.fileInput = fileInput;
+        this.container.appendChild(this.createSection('Settings Management', content));
+    }
+
     createSlider(label, min, max, step, value, onChange) {
         const container = document.createElement('div');
         container.className = 'control-item slider-container';
@@ -450,21 +495,70 @@ class ControlPanel {
         return container;
     }
 
-    createButton(text, className = '', onClick = null) {
+    createButton(text, className = '', onClick = null, icon = null) {
         const button = document.createElement('button');
-        button.textContent = text;
-        button.className = `control-button ${className}`;  // 基本クラスと追加クラスを設定
-        
+        button.className = `control-button ${className}`;
+
+        if (icon) {
+            const img = document.createElement('img');
+            img.src = icon;
+            img.className = 'button-icon';
+            img.alt = '';
+            button.appendChild(img);
+        }
+
+        const span = document.createElement('span');
+        span.textContent = text;
+        button.appendChild(span);
+
         if (onClick) {
             button.addEventListener('click', onClick);
         }
 
-        // control-itemクラスでラップ（一貫したアニメーションのため）
         const container = document.createElement('div');
         container.className = 'control-item';
         container.appendChild(button);
 
         return container;
+    }
+
+    createConfirmPopup(title, message, onConfirm) {
+        const popup = document.createElement('div');
+        popup.className = 'settings-popup';
+
+        const titleElement = document.createElement('h3');
+        titleElement.className = 'settings-popup-title';
+        titleElement.textContent = title;
+        popup.appendChild(titleElement);
+
+        const messageElement = document.createElement('p');
+        messageElement.className = 'settings-popup-message';
+        messageElement.textContent = message;
+        popup.appendChild(messageElement);
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'settings-popup-buttons';
+
+        const confirmButton = document.createElement('button');
+        confirmButton.className = 'settings-popup-button confirm';
+        confirmButton.textContent = 'Apply';
+        confirmButton.addEventListener('click', () => {
+            onConfirm();
+            document.body.removeChild(popup);
+        });
+
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'settings-popup-button cancel';
+        cancelButton.textContent = 'Cancel';
+        cancelButton.addEventListener('click', () => {
+            document.body.removeChild(popup);
+        });
+
+        buttonContainer.appendChild(confirmButton);
+        buttonContainer.appendChild(cancelButton);
+        popup.appendChild(buttonContainer);
+
+        document.body.appendChild(popup);
     }
 
     setupEventListeners() {
@@ -522,7 +616,7 @@ class ControlPanel {
                     setTimeout(() => {
                         activeContent.classList.add('visible');
                         // コントロール要素の順次表示
-                        const items = activeContent.querySelectorAll('.control-item, .apply-button');
+                        const items = activeContent.querySelectorAll('.control-item, .control-button');
                         items.forEach((item, index) => {
                             setTimeout(() => {
                                 item.classList.add('visible');
@@ -543,7 +637,7 @@ class ControlPanel {
 
             const activeContent = this.container.querySelector('.section-content.visible');
             if (activeContent) {
-                activeContent.querySelectorAll('.control-item, .apply-button').forEach(item => {
+                activeContent.querySelectorAll('.control-item, .control-button').forEach(item => {
                     item.classList.remove('visible');
                 });
                 activeContent.classList.remove('visible');
@@ -557,6 +651,132 @@ class ControlPanel {
             }, 300);
         }
     }
+
+    /** 設定関係 */
+    setupLocalStorage() {
+        // 保存された設定があれば読み込む
+        const savedSettings = localStorage.getItem('particleSimulatorSettings');
+        if (savedSettings) {
+            try {
+                const parsed = JSON.parse(savedSettings);
+                this.settings = this.mergeSettings(this.settings, parsed);
+                this.applyAllSettings();
+            } catch (e) {
+                console.error('Failed to load saved settings:', e);
+            }
+        }
+    }
+
+    mergeSettings(current, saved) {
+        // 再帰的に設定をマージ（新しいプロパティを保持しつつ、保存された値を適用）
+        const merged = { ...current };
+        for (const key in saved) {
+            if (current.hasOwnProperty(key)) {
+                if (typeof saved[key] === 'object' && saved[key] !== null) {
+                    merged[key] = this.mergeSettings(current[key], saved[key]);
+                } else {
+                    merged[key] = saved[key];
+                }
+            }
+        }
+        return merged;
+    }
+
+    confirmAndApplySettings(settings, isImport = false) {
+        const title = isImport ? 'Import Settings' : 'Reset to Default';
+        const message = isImport ? 
+            'Do you want to apply the imported settings? This will override your current settings.' :
+            'Do you want to reset all settings to their default values? This cannot be undone.';
+    
+        this.createConfirmPopup(title, message, () => {
+            this.settings = this.mergeSettings(this.settings, settings);
+            this.applyAllSettings();
+        });
+    }
+
+    applyAllSettings() {
+        // Display Settings
+        if (this.app.StatusPanel) {
+            this.app.StatusPanel.setVisibility(this.settings.display.showStatusPanel);
+        }
+        if (this.settings.display.fullscreen) {
+            this.enterFullscreen();
+        }
+
+        // Post Processing Settings
+        this.app.setPostProcessingEnabled(this.settings.postProcessing.enabled);
+        if (this.app.effects) {
+            if (this.app.effects.bloom) {
+                this.app.effects.bloom.enabled = this.settings.postProcessing.bloom.enabled;
+                this.app.effects.bloom.strength = this.settings.postProcessing.bloom.strength;
+            }
+            if (this.app.effects.afterimage) {
+                this.app.effects.afterimage.enabled = this.settings.postProcessing.motionBlur.enabled;
+                this.app.effects.afterimage.uniforms['damp'].value = this.settings.postProcessing.motionBlur.strength;
+            }
+        }
+
+        // Particle Settings
+        if (this.app.particleSystem) {
+            this.app.particleSystem.applySettings({
+                count: this.settings.particles.count,
+                bounds: this.settings.particles.bounds,
+                size: this.settings.particles.size,
+                blackHoleRadius: this.settings.particles.blackHoleRadius
+            });
+        }
+
+        // Camera Settings
+        if (this.app.cameraController) {
+            this.app.cameraController.setAutoRotate(this.settings.camera.autoRotate);
+            this.app.cameraController.setRotationSpeed(this.settings.camera.rotationSpeed);
+            this.app.cameraController.setDistance(this.settings.camera.distance);
+        }
+
+        // 設定をローカルストレージに保存
+        localStorage.setItem('particleSimulatorSettings', JSON.stringify(this.settings));
+    }
+
+    handleReset() {
+        const deviceSettings = new DeviceSettingsDetector().getDefaultSettings();
+        this.confirmAndApplySettings(deviceSettings, false);
+    }
+
+    handleImport() {
+        this.fileInput.click();
+    }
+
+    handleFileInput(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const settings = JSON.parse(event.target.result);
+                    this.confirmAndApplySettings(settings, true);
+                    // ファイル入力をリセット（同じファイルを再度選択可能に）
+                    this.fileInput.value = '';
+                } catch (error) {
+                    alert('Invalid settings file');
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    handleExport() {
+        const settingsJson = JSON.stringify(this.settings, null, 2);
+        const blob = new Blob([settingsJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'particle-simulator-settings.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
 
     dispose() {
         if (this.button && this.button.parentNode) {
