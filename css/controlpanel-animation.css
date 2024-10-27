@@ -50,14 +50,14 @@
     overflow: hidden;
 }
 
-/* Applyボタンの特別なアニメーション */
-.apply-button {
+/* 汎用ボタンのアニメーション */
+.control-button {
     opacity: 0;
-    transform: scale(0.7);
+    transform: scale(0.9);
     transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
-.apply-button.visible {
+.control-button.visible {
     opacity: 1;
     transform: scale(1);
 }

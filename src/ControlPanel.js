@@ -340,17 +340,17 @@ class ControlPanel {
         ));
 
         // 適用ボタン
-        const applyButton = document.createElement('button');
-        applyButton.textContent = 'Apply Changes';
-        applyButton.className = 'apply-button';
-        applyButton.addEventListener('click', () => {
-            this.app.particleSystem.applySettings({
-                count: this.settings.particles.count,
-                bounds: this.settings.particles.bounds,
-                size: this.settings.particles.size
-            });
-        });
-        content.appendChild(applyButton);
+        content.appendChild(this.createButton(
+            'Apply Changes',
+            'apply-button',
+            () => {
+                this.app.particleSystem.applySettings({
+                    count: this.settings.particles.count,
+                    bounds: this.settings.particles.bounds,
+                    size: this.settings.particles.size
+                });
+            }
+        ));
 
         this.container.appendChild(this.createSection('Particle Settings', content));
     }
@@ -447,6 +447,23 @@ class ControlPanel {
         labelElement.appendChild(checkbox);
 
         container.appendChild(labelElement);
+        return container;
+    }
+
+    createButton(text, className = '', onClick = null) {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.className = `control-button ${className}`;  // 基本クラスと追加クラスを設定
+        
+        if (onClick) {
+            button.addEventListener('click', onClick);
+        }
+
+        // control-itemクラスでラップ（一貫したアニメーションのため）
+        const container = document.createElement('div');
+        container.className = 'control-item';
+        container.appendChild(button);
+
         return container;
     }
 
