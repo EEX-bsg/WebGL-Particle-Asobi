@@ -162,15 +162,15 @@ class ControlPanel {
         try {
             // モバイルデバイスかどうかを確認
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
+
             if (isMobile) {
                 // モバイルデバイスの場合
                 const orientation = screen.orientation;
-                
+
                 if (orientation && 'type' in orientation) {
                     // 現在の向きを確認
                     const isPortrait = orientation.type.includes('portrait');
-                    
+
                     if (isPortrait && 'lock' in orientation) {
                         try {
                             // 可能であれば現在の向きを保持したまま全画面化を試みる
