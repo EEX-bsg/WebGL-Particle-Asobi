@@ -99,8 +99,8 @@ class CameraController {
             this.clearLongPress();
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
-            const newDistance = 1 / Math.hypot(dx, dy);
-            const scale = newDistance / this.state.pinchDistance;
+            const newDistance = Math.hypot(dx, dy);
+            const scale = this.state.pinchDistance / newDistance; 
             this.state.zoom = Math.max(0.5, Math.min(2, this.state.zoom * scale));
             this.state.pinchDistance = newDistance;
         } else if (e.touches.length === 1 && !this.state.isLongPress) {
