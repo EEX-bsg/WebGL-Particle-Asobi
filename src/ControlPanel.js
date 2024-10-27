@@ -135,6 +135,7 @@ class ControlPanel {
                 if (this.app.StatusPanel) {
                     this.app.StatusPanel.setVisibility(value);
                 }
+                this.saveSettings();
             }
         ));
 
@@ -149,6 +150,7 @@ class ControlPanel {
                 } else {
                     await this.exitFullscreen();
                 }
+                this.saveSettings();
             }
         );
         content.appendChild(this.fullscreenCheckbox);
@@ -241,6 +243,7 @@ class ControlPanel {
             (value) => {
                 this.settings.postProcessing.enabled = value;
                 this.app.setPostProcessingEnabled(value);
+                this.saveSettings();
             }
         ));
 
@@ -253,6 +256,7 @@ class ControlPanel {
                 if (this.app.effects && this.app.effects.bloom) {
                     this.app.effects.bloom.enabled = value;
                 }
+                this.saveSettings();
             }
         ));
 
@@ -265,6 +269,7 @@ class ControlPanel {
                 if (this.app.effects && this.app.effects.bloom) {
                     this.app.effects.bloom.strength = value;
                 }
+                this.saveSettings();
             }
         ));
 
@@ -277,6 +282,7 @@ class ControlPanel {
                 if (this.app.effects && this.app.effects.afterimage) {
                     this.app.effects.afterimage.enabled = value;
                 }
+                this.saveSettings();
             }
         ));
 
@@ -289,6 +295,7 @@ class ControlPanel {
                 if (this.app.effects && this.app.effects.afterimage) {
                     this.app.effects.afterimage.uniforms['damp'].value = value;
                 }
+                this.saveSettings();
             }
         ));
 
@@ -339,6 +346,7 @@ class ControlPanel {
                 if (this.app.particleSystem) {
                     this.app.particleSystem.settings.blackHoleRadius = value;
                 }
+                this.saveSettings();
             }
         ));
 
@@ -352,6 +360,7 @@ class ControlPanel {
                     bounds: this.settings.particles.bounds,
                     size: this.settings.particles.size
                 });
+                this.saveSettings();
             }
         ));
 
@@ -370,6 +379,7 @@ class ControlPanel {
                 if (this.app.cameraController) {
                     this.app.cameraController.setAutoRotate(value);
                 }
+                this.saveSettings();
             }
         ));
 
@@ -383,6 +393,7 @@ class ControlPanel {
                 if (this.app.cameraController) {
                     this.app.cameraController.setRotationSpeed(value);
                 }
+                this.saveSettings();
             }
         ));
 
@@ -396,6 +407,7 @@ class ControlPanel {
                 if (this.app.cameraController) {
                     this.app.cameraController.setDistance(value);
                 }
+                this.saveSettings();
             }
         ));
 
@@ -734,6 +746,10 @@ class ControlPanel {
         }
 
         // 設定をローカルストレージに保存
+        this.saveSettings();
+    }
+
+    saveSettings() {
         localStorage.setItem('particleSimulatorSettings', JSON.stringify(this.settings));
     }
 
