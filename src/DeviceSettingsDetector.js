@@ -6,28 +6,39 @@ class DeviceSettingsDetector {
 
     detectDeviceType() {
         const userAgent = navigator.userAgent.toLowerCase();
-        if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
+        const platform = navigator.platform.toLowerCase();
+
+        if (
+            /(tablet|playbook|silk)|(android(?!.*mobile))/i.test(userAgent) ||
+            (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /macintosh/.test(userAgent)) ||
+            /ipad/.test(userAgent)
+        ) {
             return 'tablet';
         }
-        if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(userAgent)) {
+
+        if (
+            /android|webos|iphone|ipod|blackberry|iemobile|opera mini|mobile|phone|samsung|pixel/i.test(userAgent) ||
+            /android/.test(platform) ||
+            /iphone/.test(platform) ||
+            (typeof window.orientation !== 'undefined') ||
+            navigator.maxTouchPoints > 1
+        ) {
             return 'mobile';
         }
+        
         return 'desktop';
     }
 
     detectPerformanceLevel() {
-        const screenPixels = window.screen.width * window.screen.height;
         const isMobile = this.deviceType === 'mobile';
-        
-        // 超ローエンド: 低解像度のモバイル
-        if (isMobile && screenPixels < 1280 * 720) {
+
+        // 実際の物理解像度に基づく判定
+        if (isMobile && this.physicalPixels < (1280 * 720)) {
             return 'ultra_low';
         }
-        // ローエンド: 通常のモバイル
-        if (isMobile || (this.deviceType === 'tablet' && screenPixels < 1920 * 1080)) {
+        if (isMobile || (this.deviceType === 'tablet' && this.physicalPixels < (1920 * 1080))) {
             return 'low';
         }
-        // ハイエンド: PC、タブレット
         return 'high';
     }
 
