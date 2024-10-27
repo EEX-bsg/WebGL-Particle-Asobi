@@ -28,6 +28,15 @@ class ControlPanel {
                 autoRotate: deviceSettings.camera.autoRotate,
                 rotationSpeed: deviceSettings.camera.rotationSpeed,
                 distance: deviceSettings.camera.distance
+            },
+            sound: {
+                enabled: false,
+                maxSources: 200,
+                distance: 10,
+                volume: 0.3,
+                decayRate: 0.95,
+                minPitch: 220,
+                maxPitch: 880
             }
         };
         //なぜかこれでラグ直る
@@ -62,10 +71,13 @@ class ControlPanel {
         this.createPostProcessingSection();
         this.createParticleSection();
         this.createCameraSection();
+        this.createSoundSection();
         this.createSettingsManagementSection();
 
         document.body.appendChild(this.container);
     }
+
+    /** セクション */
 
     createSection(title, content) {
         const section = document.createElement('div');
@@ -455,6 +467,104 @@ class ControlPanel {
         this.fileInput = fileInput;
         this.container.appendChild(this.createSection('Settings Management', content));
     }
+
+    createSoundSection() {
+        const content = document.createElement('div');
+    
+        // 音声有効/無効の設定
+        content.appendChild(this.createCheckbox(
+            'Enable Sound',
+            this.settings.sound.enabled,
+            (value) => {
+                this.settings.sound.enabled = value;
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ enabled: value });
+                }
+            }
+        ));
+    
+        // 同時発音数の設定
+        content.appendChild(this.createSlider(
+            'Max Sound Sources',
+            1, 1000, 1,
+            this.settings.sound.maxSources,
+            (value) => {
+                this.settings.sound.maxSources = parseInt(value);
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ maxSources: parseInt(value) });
+                }
+            }
+        ));
+    
+        // 音が聞こえる距離の設定
+        content.appendChild(this.createSlider(
+            'Sound Distance',
+            1, 30, 1,
+            this.settings.sound.distance,
+            (value) => {
+                this.settings.sound.distance = parseInt(value);
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ distance: parseInt(value) });
+                }
+            }
+        ));
+    
+        // 音量の設定
+        content.appendChild(this.createSlider(
+            'Volume',
+            0, 1, 0.05,
+            this.settings.sound.volume,
+            (value) => {
+                this.settings.sound.volume = parseFloat(value);
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ volume: parseFloat(value) });
+                }
+            }
+        ));
+    
+        // 減衰率の設定
+        content.appendChild(this.createSlider(
+            'Decay Rate',
+            0.8, 0.99, 0.01,
+            this.settings.sound.decayRate,
+            (value) => {
+                this.settings.sound.decayRate = parseFloat(value);
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ decayRate: parseFloat(value) });
+                }
+            }
+        ));
+    
+        // 最低周波数の設定
+        content.appendChild(this.createSlider(
+            'Min Pitch (Hz)',
+            100, 1000, 10,
+            this.settings.sound.minPitch,
+            (value) => {
+                this.settings.sound.minPitch = parseInt(value);
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ minPitch: parseInt(value) });
+                }
+            }
+        ));
+    
+        // 最高周波数の設定
+        content.appendChild(this.createSlider(
+            'Max Pitch (Hz)',
+            100, 2000, 10,
+            this.settings.sound.maxPitch,
+            (value) => {
+                this.settings.sound.maxPitch = parseInt(value);
+                if (this.app.soundSystem) {
+                    this.app.soundSystem.updateSettings({ maxPitch: parseInt(value) });
+                }
+            }
+        ));
+    
+        this.container.appendChild(this.createSection('Sound Settings', content));
+    }
+
+    /** 汎用コンポーネント */
 
     createSlider(label, min, max, step, value, onChange) {
         const container = document.createElement('div');

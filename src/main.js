@@ -10,13 +10,13 @@ class App {
             antialias: true
         });
 
+        // デバイス設定を渡してControlPanelを初期化
+        this.controlPanel = new ControlPanel(this, this.deviceSettings);
         this.setupRenderer();
         this.setupCamera();
         this.setupPostProcessing();
         this.initSystems();
         this.setupEventListeners();
-        // デバイス設定を渡してControlPanelを初期化
-        this.controlPanel = new ControlPanel(this, this.deviceSettings);
 
         // フルスクリーンの状態変更を監視
         // const handleFullscreen = this.handleFullscreenChange.bind(this);
@@ -94,6 +94,8 @@ class App {
         this.particleSystem = new ParticleSystem(this.scene, this.camera, this.deviceSettings.particles)
         this.cameraController = new CameraController(this.camera);
         this.StatusPanel = new StatusPanel();
+        this.soundSystem = new ParticleSoundSystem(this.camera, this.particleSystem);
+        this.soundSystem.updateSettings(this.controlPanel.settings.sound);
         this.time = 0;
     }
 
@@ -143,6 +145,10 @@ class App {
         this.particleSystem.update(this.time, blackHoleForce);
         this.particleSystem.updateCameraPosition(this.camera.position);
 
+        if (this.soundSystem) {
+            this.soundSystem.update();
+        }
+
         this.updateEffects();
         this.StatusPanel.update(this.camera, this.cameraController, this.particleSystem);
 
@@ -158,6 +164,9 @@ class App {
         this.StatusPanel.dispose();
         if (this.composer) {
             this.composer.dispose();
+        }
+        if (this.soundSystem) {
+            this.soundSystem.dispose();
         }
     }
 }
