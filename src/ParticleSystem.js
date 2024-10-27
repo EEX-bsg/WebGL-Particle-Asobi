@@ -1,12 +1,12 @@
 class ParticleSystem {
-    constructor(scene, camera) {
+    constructor(scene, camera, defaultSettings) {
         this.scene = scene;
         this.camera = camera;
         this.settings = {
-            count: 60000,
-            bounds: 80,
-            size: 1.0,
-            blackHoleRadius: 1.3
+            count: defaultSettings.count,
+            bounds: defaultSettings.bounds,
+            size: defaultSettings.size,
+            blackHoleRadius: defaultSettings.blackHoleRadius
         };
 
         this.initializeSystem();

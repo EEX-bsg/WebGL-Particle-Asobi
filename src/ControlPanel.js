@@ -1,5 +1,5 @@
 class ControlPanel {
-    constructor(app) {
+    constructor(app, deviceSettings) {
         this.app = app;
         this.visible = false;
         this.settings = {
@@ -8,26 +8,26 @@ class ControlPanel {
                 fullscreen: false
             },
             postProcessing: {
-                enabled: true,
+                enabled: deviceSettings.postProcessing.enabled,
                 bloom: {
-                    enabled: true,
-                    strength: 0.8
+                    enabled: deviceSettings.postProcessing.bloom.enabled,
+                    strength: deviceSettings.postProcessing.bloom.strength
                 },
                 motionBlur: {
-                    enabled: true,
-                    strength: 0.92
+                    enabled: deviceSettings.postProcessing.motionBlur.enabled,
+                    strength: deviceSettings.postProcessing.motionBlur.strength
                 }
             },
             particles: {
-                count: 60000,
-                bounds: 80,
-                size: 1.0,
-                blackHoleRadius: 1.3
+                count: deviceSettings.particles.count,
+                bounds: deviceSettings.particles.bounds,
+                size: deviceSettings.particles.size,
+                blackHoleRadius: deviceSettings.particles.blackHoleRadius
             },
             camera: {
-                autoRotate: true,
-                rotationSpeed: 1.0,
-                distance: 50
+                autoRotate: deviceSettings.camera.autoRotate,
+                rotationSpeed: deviceSettings.camera.rotationSpeed,
+                distance: deviceSettings.camera.distance
             }
         };
         //なぜかこれでラグ直る

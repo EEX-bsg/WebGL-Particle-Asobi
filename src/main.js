@@ -1,5 +1,8 @@
 class App {
     constructor() {
+        // デバイス設定の検出を最初に行う
+        this.deviceSettings = new DeviceSettingsDetector().getDefaultSettings();
+
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({
@@ -12,8 +15,8 @@ class App {
         this.setupPostProcessing();
         this.initSystems();
         this.setupEventListeners();
-        this.controlPanel = new ControlPanel(this);
-        this.animate();
+        // デバイス設定を渡してControlPanelを初期化
+        this.controlPanel = new ControlPanel(this, this.deviceSettings);
 
         // フルスクリーンの状態変更を監視
         // const handleFullscreen = this.handleFullscreenChange.bind(this);
@@ -21,10 +24,12 @@ class App {
         // document.addEventListener('webkitfullscreenchange', handleFullscreen);
         // document.addEventListener('mozfullscreenchange', handleFullscreen);
         // document.addEventListener('MSFullscreenChange', handleFullscreen);
+
+        this.animate();
     }
 
      // ControlPanel用のメソッド
-     setPostProcessingEnabled(enabled) {
+    setPostProcessingEnabled(enabled) {
         this.postProcessingEnabled = enabled;
     }
 
@@ -73,12 +78,20 @@ class App {
             afterimage: afterimagePass
         };
 
-        // 初期状態ではすべて有効
-        this.postProcessingEnabled = true;
+        // ポストプロセッシングの初期状態をデバイス設定から設定
+        this.postProcessingEnabled = this.deviceSettings.postProcessing.enabled;
+        if (this.bloomPass) {
+            this.bloomPass.enabled = this.deviceSettings.postProcessing.bloom.enabled;
+            this.bloomPass.strength = this.deviceSettings.postProcessing.bloom.strength;
+        }
+        if (afterimagePass) {
+            afterimagePass.enabled = this.deviceSettings.postProcessing.motionBlur.enabled;
+            afterimagePass.uniforms['damp'].value = this.deviceSettings.postProcessing.motionBlur.strength;
+        }
     }
 
     initSystems() {
-        this.particleSystem = new ParticleSystem(this.scene, this.camera)
+        this.particleSystem = new ParticleSystem(this.scene, this.camera, this.deviceSettings.particles)
         this.cameraController = new CameraController(this.camera);
         this.StatusPanel = new StatusPanel();
         this.time = 0;
