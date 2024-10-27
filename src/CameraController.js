@@ -95,14 +95,13 @@ class CameraController {
 
     handleTouchMove(e) {
         if (!this.state.active) return;
-        
         if (e.touches.length === 2) {
             this.clearLongPress();
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             const newDistance = Math.hypot(dx, dy);
             const scale = newDistance / this.state.pinchDistance;
-            this.state.zoom = Math.max(0.5, Math.min(2, this.state.zoom * scale));
+            this.state.zoom = Math.max(0.5, Math.min(2, this.state.zoom * scale * -1));
             this.state.pinchDistance = newDistance;
         } else if (e.touches.length === 1 && !this.state.isLongPress) {
             this.handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
@@ -150,8 +149,8 @@ class CameraController {
 
     // 共通の操作ハンドラー
     handleDragMove(currentX, currentY) {
-        const dx = currentX - this.state.lastX;
-        const dy = currentY - this.state.lastY;
+        const dx = ( currentX - this.state.lastX ) * -1;
+        const dy = ( currentY - this.state.lastY );
 
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
             this.state.isDragging = true;
