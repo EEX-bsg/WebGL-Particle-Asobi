@@ -119,7 +119,7 @@ class CameraController {
         this.state.lastX = e.clientX;
         this.state.lastY = e.clientY;
         this.state.isDragging = false;
-        
+
         // 右クリックの場合は即座にブラックホール効果を開始
         if (e.button === 2) {
             this.state.isLongPress = true;
@@ -152,16 +152,16 @@ class CameraController {
     handleDragMove(currentX, currentY) {
         const dx = currentX - this.state.lastX;
         const dy = currentY - this.state.lastY;
-        
+
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
             this.state.isDragging = true;
             this.clearLongPress();
         }
-        
+
         this.state.rotationX += dx * 0.01;
         this.state.rotationY = Math.max(-Math.PI/3, 
             Math.min(Math.PI/3, this.state.rotationY + dy * 0.01));
-            
+
         this.state.lastX = currentX;
         this.state.lastY = currentY;
         this.isAutoCamera = false;

@@ -30,6 +30,9 @@ class ControlPanel {
                 distance: 50
             }
         };
+        //なぜかこれでラグ直る
+        this.settings.particles.size += 0.1
+        this.settings.particles.size -= 0.1
 
         // パネルの状態管理
         this.activeSection = null;
@@ -312,6 +315,16 @@ class ControlPanel {
             }
         ));
 
+        // パーティクルサイズの設定を追加
+        content.appendChild(this.createSlider(
+            'Particle Size',
+            0.2, 2.0, 0.1,
+            this.settings.particles.size,
+            (value) => {
+                this.settings.particles.size = parseFloat(value);
+            }
+        ));
+
         // ブラックホール半径の設定を追加
         content.appendChild(this.createSlider(
             'Black Hole Radius',
@@ -392,7 +405,11 @@ class ControlPanel {
 
         const labelElement = document.createElement('div');
         labelElement.className = 'control-label';
-        labelElement.textContent = label;
+
+        const labelText = document.createElement('div');
+        labelText.className = 'label-text';
+        labelText.textContent = label
+        labelElement.appendChild(labelText);
 
         const valueDisplay = document.createElement('span');
         valueDisplay.className = 'value-display';

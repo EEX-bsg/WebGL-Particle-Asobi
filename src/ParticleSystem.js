@@ -31,24 +31,17 @@ class ParticleSystem {
     }
 
     applySettings(newSettings) {
-        const needsRecreate = this.settings.count !== newSettings.count;
-
         this.settings = { ...this.settings, ...newSettings };
 
-        if (needsRecreate) {
-            this.particles = new Float32Array(this.settings.count * 3);
-            this.velocities = new Float32Array(this.settings.count * 3);
-            this.initParticles();
-        }
+        this.particles = new Float32Array(this.settings.count * 3);
+        this.velocities = new Float32Array(this.settings.count * 3);
+        this.initParticles();
+        this.createParticleSystem();
 
-        // パーティクルサイズの更新
-        if (this.points) {
-            this.points.material.uniforms.particleSize.value = this.settings.size;
-        }
-
-        if (needsRecreate) {
-            this.createParticleSystem();
-        }
+        // // パーティクルサイズの更新
+        // if (this.points) {
+        //     this.points.material.uniforms.particleSize.value = this.settings.size;
+        // }
     }
 
     createParticleTexture() {
@@ -113,7 +106,7 @@ class ParticleSystem {
             new THREE.ShaderMaterial({
                 uniforms: {
                     particleTexture: { value: new THREE.CanvasTexture(this.createParticleTexture()) },
-                    particleSize: { value: this.settings.size }
+                    particleSize: { value: this.settings.size * 180 }
                 },
                 vertexShader: CustomShaders.vertex,
                 fragmentShader: CustomShaders.fragment,

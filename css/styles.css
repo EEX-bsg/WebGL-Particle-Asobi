@@ -14,7 +14,7 @@ canvas {
 .status-panel {
     position: fixed;
     background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
+    color: #FFFFFF;
     border-radius: 5px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     transition: all 0.2s ease-out;
@@ -61,6 +61,7 @@ canvas {
     display: none;
     z-index: 1000;
     overscroll-behavior: contain;
+    color: rgba(255, 255, 255, 0.8)
 }
 
 /* セクションのスタイル */
@@ -97,6 +98,16 @@ canvas {
 .control-item {
     margin-bottom: 15px;
 }
+
+
+.control-item:hover label,
+.control-item:hover .label-text {
+    /* font-weight: bolder; */
+    color: #ffffff;
+    font-size: 101%;
+}
+
+
 
 .control-label {
     display: flex;
@@ -164,6 +175,7 @@ input[type="checkbox"] {
     border: none;
     color: #88ccff;
     cursor: pointer;
+    user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;

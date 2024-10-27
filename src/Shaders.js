@@ -1,5 +1,6 @@
 const CustomShaders = {
     vertex: `
+        uniform float particleSize;
         varying float vDistance;
         void main() {
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -8,7 +9,7 @@ const CustomShaders = {
             // カメラからの距離に基づくサイズの計算
             // 近すぎる場合（10未満）は徐々にサイズを0に
             // 適正距離（10-60）では通常のサイズ計算
-            float baseSize = 180.0 / (-mvPosition.z);
+            float baseSize = particleSize / (-mvPosition.z);
             float nearFade = smoothstep(1.0, 3.0, -mvPosition.z);
             gl_PointSize = max(1.2, baseSize * nearFade);
 
