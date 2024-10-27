@@ -11,7 +11,8 @@ const CustomShaders = {
             // 適正距離（10-60）では通常のサイズ計算
             float baseSize = particleSize / (-mvPosition.z);
             float nearFade = smoothstep(1.0, 3.0, -mvPosition.z);
-            gl_PointSize = max(1.2, baseSize * nearFade);
+            float minSize = min(0.5, particleSize);
+            gl_PointSize = max(baseSize * nearFade, minSize);
 
             gl_Position = projectionMatrix * mvPosition;
         }
@@ -30,8 +31,8 @@ const CustomShaders = {
             // 両方の減衰を組み合わせる
             float distanceFade = min(farFade, nearFade);
 
-            // 最終的な不透明度の計算（0.1から0.9の範囲）
-            float opacity = mix(0.1, 0.9, distanceFade);
+            // 最終的な不透明度の計算
+            float opacity = mix(0.3, 0.9, distanceFade);
 
             // カメラからの距離に応じた色の調整
             vec3 color = vec3(0.4, 0.85, 1.0) * (1.0 - vDistance * 0.001);
