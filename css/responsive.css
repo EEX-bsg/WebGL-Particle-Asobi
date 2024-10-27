@@ -1,0 +1,80 @@
+/* スマートフォン縦向き*/
+@media screen
+    and (orientation: portrait)
+    and (max-device-width: 428px)
+    and (min-device-width: 320px)
+    and (max-aspect-ratio: 13/19)
+    and (not (display-mode: fullscreen))
+{
+    .status-panel {
+        width: max-content;
+        min-width: 480px;
+        font-size: 30px;
+        padding: 12px;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    .control-panel {
+        width: 480px;
+        top: 120px;
+        font-size: 28px;
+    }
+
+    .settings-button {
+        width: 80px;
+        height: 80px;
+    }
+
+    .settings-button .settings-icon {
+        width: 65%;
+        height: 65%;
+    }
+
+    .section-header {
+        padding: 24px;
+        font-size: 32px;
+    }
+
+    .section-content {
+        padding: 30px;
+    }
+
+    .control-item {
+        margin-bottom: 30px;
+    }
+
+    .control-label {
+        font-size: 28px;
+        margin-bottom: 16px;
+    }
+
+    .value-display {
+        font-size: 28px;
+    }
+
+    input[type="range"] {
+        height: 8px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        width: 32px;
+        height: 32px;
+    }
+
+    input[type="checkbox"] {
+        width: 32px;
+        height: 32px;
+    }
+
+    .control-button {
+        padding: 20px;
+        font-size: 32px;
+    }
+
+    .control-panel::-webkit-scrollbar {
+        width: 16px;
+    }
+}

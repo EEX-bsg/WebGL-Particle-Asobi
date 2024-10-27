@@ -1,0 +1,37 @@
+.control-section {
+    margin-bottom: 4px;
+}
+
+.section-header {
+    padding: 7px 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+    color: #88ccff;
+}
+
+.section-header:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.section-header.active {
+    background-color: rgba(136, 204, 255, 0.3);
+}
+
+.section-content {
+    padding: 8px 15px 5px 15px;
+}
+
+.control-item {
+    margin-bottom: 15px;
+}
+
+.control-item:hover label,
+.control-item:hover .label-text {
+    color: #ffffff;
+    font-size: 101%;
+}

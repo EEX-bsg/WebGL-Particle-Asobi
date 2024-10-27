@@ -1,0 +1,28 @@
+.settings-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1002;
+    color: white;
+    text-align: center;
+    min-width: 300px;
+}
+
+.settings-popup-title {
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+}
+
+.settings-popup-message {
+    margin: 0 0 20px 0;
+}
+
+.settings-popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
