@@ -96,24 +96,24 @@ class DeviceSettingsDetector {
                 particles: {
                     count: 60000,
                     bounds: 100,
-                    size: 1.0,
+                    size: 0.8,
                     blackHoleRadius: 1.3
                 },
                 postProcessing: {
                     enabled: true,
                     bloom: {
                         enabled: true,
-                        strength: 0.8
+                        strength: 2.2
                     },
                     motionBlur: {
                         enabled: true,
-                        strength: 0.92
+                        strength: 0.98
                     }
                 },
                 camera: {
                     autoRotate: true,
-                    rotationSpeed: 1.0,
-                    distance: 50
+                    rotationSpeed: 2.0,
+                    distance: 35
                 }
             }
         };

@@ -76,8 +76,8 @@ class StatusPanel {
         this.elements.rotation.textContent = 
             `Cam Rot: X:${rotation.x.toFixed(2)}° Y:${rotation.y.toFixed(2)}°`;
         this.elements.forceField.textContent = `Force: ${avgForce.toFixed(3)}`;
-        this.elements.activeSounds.textContent = 
-        `Active Sounds: ${this.formatNumber(activeSoundCount)}/${this.formatNumber(maxSoundSources)}`;
+        // this.elements.activeSounds.textContent = 
+        // `Active Sounds: ${this.formatNumber(activeSoundCount)}/${this.formatNumber(maxSoundSources)}`;
         this.elements.elapsedTime.textContent = `Time: ${this.formatElapsedTime(elapsedTime)}`;
     }
 

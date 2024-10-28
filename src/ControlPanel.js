@@ -73,6 +73,7 @@ class ControlPanel {
         this.createCameraSection();
         // this.createSoundSection();
         this.createSettingsManagementSection();
+        this.createLinkSection()
 
         document.body.appendChild(this.container);
     }
@@ -330,7 +331,7 @@ class ControlPanel {
         // シミュレーション範囲の設定
         content.appendChild(this.createSlider(
             'Simulation Bounds',
-            20, 100, 5,
+            20, 150, 10,
             this.settings.particles.bounds,
             (value) => {
                 this.settings.particles.bounds = parseInt(value);
@@ -562,6 +563,32 @@ class ControlPanel {
         ));
     
         this.container.appendChild(this.createSection('Sound Settings', content));
+    }
+
+    createLinkSection() {
+        const content = document.createElement('div');
+
+        // GitHub Repository
+        const repoButton = this.createButton(
+            'GitHub Link',
+            'link-button',
+            () => {
+                window.open('https://github.com/EEX-bsg/WebGL-Particle-Asobi', '_blank')
+            }
+        );
+        content.appendChild(repoButton);
+
+        // Author Link (Twitter)
+        const authorTwitterButton = this.createButton(
+            "Author's Twitter",
+            'link-button',
+            () => {
+                window.open('https://x.com/EEX_slime', '_blank')
+            }
+        );
+        content.appendChild(authorTwitterButton);
+
+        this.container.appendChild(this.createSection('Links', content));
     }
 
     /** 汎用コンポーネント */

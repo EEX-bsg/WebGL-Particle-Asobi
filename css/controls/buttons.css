@@ -68,6 +68,15 @@
     background-color: #555555;
 }
 
+.link-button {
+    background-color: #444444;
+    color: white;
+}
+
+.link-button:hover {
+    background-color: #555555;
+}
+
 /* ポップアップボタン */
 .settings-popup-button {
     padding: 8px 16px;
