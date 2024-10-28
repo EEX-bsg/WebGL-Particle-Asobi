@@ -33,7 +33,7 @@ class ControlPanel {
                 enabled: false,
                 maxSources: 200,
                 distance: 10,
-                volume: 0.3,
+                volume: 1.0,
                 decayRate: 0.95,
                 minPitch: 220,
                 maxPitch: 880
@@ -486,7 +486,7 @@ class ControlPanel {
         // 同時発音数の設定
         content.appendChild(this.createSlider(
             'Max Sound Sources',
-            1, 1000, 1,
+            1, 500, 1,
             this.settings.sound.maxSources,
             (value) => {
                 this.settings.sound.maxSources = parseInt(value);

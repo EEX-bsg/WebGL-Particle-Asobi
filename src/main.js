@@ -96,6 +96,8 @@ class App {
         this.StatusPanel = new StatusPanel();
         this.soundSystem = new ParticleSoundSystem(this.camera, this.particleSystem);
         this.soundSystem.updateSettings(this.controlPanel.settings.sound);
+        this.soundSystem = new ParticleSoundSystem(this.camera, this.particleSystem);
+        this.soundSystem.setFPSMonitor(this.StatusPanel);
         this.time = 0;
     }
 
@@ -150,7 +152,12 @@ class App {
         }
 
         this.updateEffects();
-        this.StatusPanel.update(this.camera, this.cameraController, this.particleSystem);
+        this.StatusPanel.update(
+            this.camera, 
+            this.cameraController, 
+            this.particleSystem,
+            this.soundSystem
+        );
 
         // レンダリング
         if (this.postProcessingEnabled) {

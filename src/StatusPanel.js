@@ -13,7 +13,7 @@ class StatusPanel {
         this.container.className = 'status-panel';
 
         // 各情報要素の作成
-        const elements = ['fps', 'visibleParticles', 'position', 'rotation', 'forceField', 'elapsedTime'];
+        const elements = ['fps', 'visibleParticles', 'position', 'rotation', 'forceField', 'activeSounds', 'elapsedTime'];
         this.elements = {};
 
         elements.forEach(name => {
@@ -26,7 +26,6 @@ class StatusPanel {
         document.body.appendChild(this.container);
     }
 
-    // 既存のメソッドはそのまま維持
     formatElapsedTime(ms) {
         const seconds = Math.floor((ms / 1000) % 60);
         const minutes = Math.floor((ms / (1000 * 60)) % 60);
@@ -46,7 +45,11 @@ class StatusPanel {
         this.lastTime = currentTime;
     }
 
-    update(camera, cameraController, particleSystem) {
+    getFPS(){
+        return this.fps
+    }
+
+    update(camera, cameraController, particleSystem, soundSystem) {
         this.frameCount++;
 
         const elapsedTime = performance.now() - this.startTime;
@@ -59,6 +62,11 @@ class StatusPanel {
             y: (cameraController.state.rotationY * 180 / Math.PI) % 360
         };
 
+        // 音源数の取得（soundSystemが存在し、初期化されている場合のみ）
+        const activeSoundCount = soundSystem && soundSystem.isInitialized ? 
+            soundSystem.getActiveSoundCount() : 0;
+        const maxSoundSources = soundSystem ? soundSystem.settings.maxSources : 0;
+
         // 各要素の更新
         this.elements.fps.textContent = `FPS: ${this.fps}`;
         this.elements.visibleParticles.textContent = 
@@ -68,6 +76,8 @@ class StatusPanel {
         this.elements.rotation.textContent = 
             `Cam Rot: X:${rotation.x.toFixed(2)}° Y:${rotation.y.toFixed(2)}°`;
         this.elements.forceField.textContent = `Force: ${avgForce.toFixed(3)}`;
+        this.elements.activeSounds.textContent = 
+        `Active Sounds: ${this.formatNumber(activeSoundCount)}/${this.formatNumber(maxSoundSources)}`;
         this.elements.elapsedTime.textContent = `Time: ${this.formatElapsedTime(elapsedTime)}`;
     }
 
