@@ -71,7 +71,7 @@ class ControlPanel {
         this.createPostProcessingSection();
         this.createParticleSection();
         this.createCameraSection();
-        this.createSoundSection();
+        // this.createSoundSection();
         this.createSettingsManagementSection();
 
         document.body.appendChild(this.container);
