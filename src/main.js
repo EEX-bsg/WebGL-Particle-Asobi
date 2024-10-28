@@ -153,8 +153,8 @@ class App {
 
         this.updateEffects();
         this.StatusPanel.update(
-            this.camera, 
-            this.cameraController, 
+            this.camera,
+            this.cameraController,
             this.particleSystem,
             this.soundSystem
         );

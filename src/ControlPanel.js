@@ -781,7 +781,10 @@ class ControlPanel {
         if (savedSettings) {
             try {
                 const parsed = JSON.parse(savedSettings);
+                // sound.enabled と display.fullscreen は常にfalseで上書き
                 this.settings = this.mergeSettings(this.settings, parsed);
+                this.settings.sound.enabled = false;
+                this.settings.display.fullscreen = false;
                 this.applyAllSettings();
             } catch (e) {
                 console.error('Failed to load saved settings:', e);
@@ -790,13 +793,17 @@ class ControlPanel {
     }
 
     mergeSettings(current, saved) {
-        // 再帰的に設定をマージ（新しいプロパティを保持しつつ、保存された値を適用）
         const merged = { ...current };
         for (const key in saved) {
             if (current.hasOwnProperty(key)) {
                 if (typeof saved[key] === 'object' && saved[key] !== null) {
                     merged[key] = this.mergeSettings(current[key], saved[key]);
                 } else {
+                    // sound.enabled と display.fullscreen は無視
+                    if (key === 'enabled' && 
+                        (saved.hasOwnProperty('sound') || saved.hasOwnProperty('fullscreen'))) {
+                        continue;
+                    }
                     merged[key] = saved[key];
                 }
             }
@@ -855,6 +862,11 @@ class ControlPanel {
             this.app.cameraController.setDistance(this.settings.camera.distance);
         }
 
+        //Sounds
+        if(this.app.soundSystem){
+            this.app.soundSystem.applyAllSettings(this.settings.sound)
+        }
+
         // 設定をローカルストレージに保存
         this.saveSettings();
     }
@@ -865,7 +877,19 @@ class ControlPanel {
 
     handleReset() {
         const deviceSettings = new DeviceSettingsDetector().getDefaultSettings();
-        this.confirmAndApplySettings(deviceSettings, false);
+        // デフォルト設定を適用する前にsoundとfullscreenの状態を保持
+        const defaultSettings = {
+            ...deviceSettings,
+            sound: {
+                ...deviceSettings.sound,
+                enabled: false
+            },
+            display: {
+                ...deviceSettings.display,
+                fullscreen: false
+            }
+        };
+        this.confirmAndApplySettings(defaultSettings, false);
     }
 
     handleImport() {
